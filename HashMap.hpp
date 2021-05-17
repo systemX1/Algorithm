@@ -37,6 +37,7 @@ namespace sy
         void insert(const K& key, const V& val);
         void insert(const vector<pair<K, V> >& data);
         void insert(const pair<K, V>& data);
+        void printList(int key = 5, int times = 20) const; 
         void printTable() const;
         void printExtraInfo() const;
         void deleteElem(const K& key);
@@ -71,10 +72,6 @@ namespace sy
     int HashMap<K, V>::find(const K& key) const
     {
 	    const size_t home = hash(key, divisor);     // home bucket
-
-        fmt::print("{:<3} ", home);
-        if (table[home] == nullptr)
-            return -1;
     	
         int i = static_cast<int>(home);             // d
         int j = 1;                                  // counter
@@ -82,6 +79,12 @@ namespace sy
         int last = -1;                              // return the last found key
         auto last_j = j;
 	    const auto* last_sign = "+";
+
+        fmt::print("{:<3} ", home);
+        if (table[home] == nullptr)
+            return -1;
+        if (table[home]->first == key && table[home]->second != -1)
+            last = i;   // = static_cast<int>(home)
 
         while(true)
         {
@@ -92,13 +95,16 @@ namespace sy
                     if (last == -1) {
                         fmt::print("( {0:} + {1:}*{1:} + {2:} ) % {2:} = {3:} ", home, j, table.size(), i);
                     }
+                    else if(last == static_cast<int>(home)) {
+                        fmt::print("{} ", last);
+                    }
                     else {
                         fmt::print("( {0:} {1:} {2:}*{2:} + {3:} ) % {3:} = {4:} ",
                             home, last_sign, last_j, table.size(), last);
                     }
                     return last;
                 }
-                if (table[i]->first == key) {
+                if (table[i]->first == key && table[i]->second != -1) {
                     last = i;
                     last_j = j;
                     last_sign = "+";
@@ -112,13 +118,16 @@ namespace sy
                     if (last == -1) {
                         fmt::print("( {0:} - {1:}*{1:} + {2:} ) % {2:} = {3:} ", home, j, table.size(), i);
                     }
+                    else if (last == static_cast<int>(home)) {
+                        fmt::print("{} ", last);
+                    }
                     else {
                         fmt::print("( {0:} {1:} {2:}*{2:} + {3:} ) % {3:} = {4:} ",
                             home, last_sign, last_j, table.size(), last);
                     }
                     return last;
                 }
-                if (table[i]->first == key) {
+                if (table[i]->first == key && table[i]->second != -1) {
                     last = i;
                     last_j = j;
                     last_sign = "-";
@@ -134,7 +143,7 @@ namespace sy
         const size_t home = hash(key, divisor);     // home bucket
 
         fmt::print("{:<3} ", home);
-        if(table[home] == nullptr)
+        if(table[home] == nullptr || table[home]->second == -1)
             return home;
             
         int i = static_cast<int>(home);             // d
@@ -145,7 +154,7 @@ namespace sy
             i = static_cast<int>((home + static_cast<unsigned long long>(j) * j + table.size()) % table.size());
             if (isValidIndex(i))
             {
-                if (table[i] == nullptr) {
+                if (table[i] == nullptr || table[i]->second == -1) {
                     fmt::print("( {0:} + {1:}*{1:} + {2:} ) % {2:} = {3:} ", home, j, table.size(), i);
                     return i;
                 }
@@ -154,7 +163,7 @@ namespace sy
             i = static_cast<int>((home - static_cast<unsigned long long>(j) * j + table.size()) % table.size());
             if (isValidIndex(i))
             {
-                if (table[i] == nullptr) {
+                if (table[i] == nullptr || table[i]->second == -1) {
                     fmt::print("( {0:} - {1:}*{1:} + {2:} ) % {2:} = {3:} ", home, j, table.size(), i);
                     return i;
                 }
@@ -193,6 +202,39 @@ namespace sy
     }
 
     template<class K, class V>
+    inline void HashMap<K, V>::printList(int key, int times) const
+    {
+        const size_t home = hash(key, divisor);     // home bucket
+
+        fmt::print("{:<3}\n", home);
+
+        int i = static_cast<int>(home);             // d
+        int j = 1;                                  // counter
+
+        while (true)
+        {
+            i = static_cast<int>((home + static_cast<unsigned long long>(j) * j + table.size()) % table.size());
+            if (isValidIndex(i))
+            {
+                if (times == 0)
+                    return;
+                fmt::print("( {0:} + {1:}*{1:} + {2:} ) % {2:} = {3:}\n", home, j, table.size(), i);
+                times--;
+            }
+
+            i = static_cast<int>((home - static_cast<unsigned long long>(j) * j + table.size()) % table.size());
+            if (isValidIndex(i))
+            {
+                if (times == 0)
+                    return;
+                fmt::print("( {0:} - {1:}*{1:} + {2:} ) % {2:} = {3:}\n", home, j, table.size(), i);
+                times--;
+            }
+            j++;
+        }
+    }
+
+    template<class K, class V>
     void HashMap<K, V>::printTable() const
     {
         printExtraInfo();
@@ -200,11 +242,11 @@ namespace sy
         {
             if (i % 5 == 0)
                 fmt::print("\nidx: {:<8}", i);
-            if (table[i] != nullptr) {
-                fmt::print(" {:<12}", *(table[i]) );
+            if (table[i] == nullptr || table[i]->second == -1) {
+                fmt::print(" {:<12}", "NULL");
             }
             else {
-                fmt::print(" {:<12}", "NULL");
+                fmt::print(" {:<12}", *(table[i]));
             }
         }
         fmt::print("\n");
@@ -226,7 +268,7 @@ namespace sy
         if (static_cast<int>(idx) != -1) {
             fmt::print("\tdelete {} successful\n", *(table[idx]));
             elem_n--;
-            table[idx] = nullptr;
+            table[idx] = make_shared<pair<K, V> >(key, -1);
         }
         else {
             fmt::print("\tnot exists\n");

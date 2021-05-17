@@ -168,6 +168,7 @@ namespace sy
             table[home] = prev->next;
         else
             prev->next = prev->next->next;
+        elem_n--;
     }
 
     template<class E>
@@ -176,7 +177,7 @@ namespace sy
         divisor = divisor_;
         for (auto& i : table)
             i = nullptr;
-        vector<shared_ptr<HashTableNode<E> > > tmp(get_odd_next(divisor_) );
+        vector<shared_ptr<HashTableNode<E> > > tmp(divisor_);
         tmp.swap(table);
         elem_n = 0;
     }

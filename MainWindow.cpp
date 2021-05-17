@@ -198,18 +198,29 @@ void MainWindow::test2()
 {
 	testText(2);
 
+	hashmap.printList(18, 20);
+	fmt::print("\n");
+
 	hashmap.reset();
 	for (int i = 1; i <= 10; i++)
 	{
-		hashmap.insert(5, i);
+		hashmap.insert(18, i);
 	}
 	hashmap.printTable();
 
 	for (int i = 1; i <= 10; i++)
 	{
-		hashmap.deleteElem(5);
+		if (i == 6)
+			hashmap.printTable();
+		hashmap.deleteElem(18);
 	}
+	hashmap.printTable();
 
+	hashmap.reset();
+	for (int i = 1; i <= 10; i++)
+	{
+		hashmap.insert(18, i);
+	}
 	hashmap.printTable();
 }
 
@@ -217,9 +228,21 @@ void MainWindow::test3()
 {
 	testText(3);
 
+	fmt::print("\n");
+
 	hashmap.reset();
-	hashmap.insert(1, 1);
+	for (int i = 30; i <= 40; i++)
+	{
+		hashmap.insert(i, i);
+	}
 	hashmap.printTable();
+
+	for (int i = 30; i <= 40; i++)
+	{
+		hashmap.deleteElem(i);
+	}
+	hashmap.printTable();
+
 }
 
 void MainWindow::test4()
@@ -227,9 +250,32 @@ void MainWindow::test4()
 	testText(4);
 	
 	hashmap.reset();
-	vector<pair<int, int>> data = { pair{1, 1}, pair{2, 2}, pair{3, 3} };
-	hashmap.insert(data);
+	hashmap.insert(18, 1);
+	hashmap.insert(18, 2);
+	hashmap.insert(18, 3);
 	hashmap.printTable();
+	
+	auto i = hashmap.find(18);
+	fmt::print("\tkey 18: {}\n", i == -1 ? "not exists" : "found");
+	i = hashmap.find(5);
+	fmt::print("\tkey 5: {}\n", i == -1 ? "not exists" : "found");
+	i = hashmap.find(6);
+	fmt::print("\tkey 6: {}\n", i == -1 ? "not exists" : "found");
+
+	hashmap.deleteElem(18);
+	hashmap.deleteElem(5);
+	hashmap.printTable();
+	
+	hashmap.insert(6, 4);
+	hashmap.insert(5, 5);
+	hashmap.printTable();
+
+	hashmap.deleteElem(34);
+	hashmap.deleteElem(5);
+	hashmap.printTable();
+
+	i = hashmap.find(18);
+	fmt::print("\tkey 18: {}\n", i == -1 ? "not exists" : "found");
 }
 
 void MainWindow::test5()
@@ -267,11 +313,64 @@ void MainWindow::test6()
 		hashtable.printTable();
 	}
 
+	insertData.pop_back();
+
+	for (const auto& i : insertData)
+	{
+		hashtable.insert(i);
+		fmt::print("insert {}\n", i);
+	}
+	hashtable.printTable();
+
+	for (const auto& i : searchData)
+	{
+		auto prev = hashtable.find(i);
+		fmt::print("key {}:\t{}\n", i, prev == nullptr ? "not exists" : "found");
+	}
+
+	for (const auto& i : deleteData)
+	{
+		hashtable.deleteElem(i);
+		fmt::print("delete {}\n", i);
+		hashtable.printTable();
+	}
 }
 
 void MainWindow::test7()
 {
 	testText(7);
+
+	hashtable.reset(13);
+
+	vector<string> insertData = { "AA", "BA", "CA", "AB", "AC" };
+	vector<string> searchData = { "AA", "BA", "CA", "AB", "AC", "BB", "ZZ" };
+	vector<string> deleteData = { "AA", "BA", "FF", "AD" };
+
+	for (const auto& i : insertData)
+	{
+		hashtable.insert(i);
+		fmt::print("insert {}\n", i);
+	}
+	hashtable.printTable();
+
+	for (const auto& i : searchData)
+	{
+		auto prev = hashtable.find(i);
+		fmt::print("key {}:\t{}\n", i, prev == nullptr ? "not exists" : "found");
+	}
+
+	for (const auto& i : deleteData)
+	{
+		hashtable.deleteElem(i);
+		fmt::print("delete {}\n", i);
+		hashtable.printTable();
+	}
+
+	for (const auto& i : searchData)
+	{
+		auto prev = hashtable.find(i);
+		fmt::print("key {}:\t{}\n", i, prev == nullptr ? "not exists" : "found");
+	}
 }
 
 void MainWindow::test8()
@@ -341,7 +440,7 @@ void MainWindow::resetAll()
 	hashtable.reset(in);
 	
 	fmt::print("\tResetting...\n\n");
-	Sleep(1000);
+	Sleep(800);
 	system("cls");
 	fmt::print(
 		"┌{0:─^{2}}┐\n"
