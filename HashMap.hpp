@@ -32,7 +32,7 @@ namespace sy
         bool isValidIndex(size_t idx) const;
         size_t getSize() const { return elem_n; }
         int getDivisor() const { return divisor; }
-        int find(const K& key) const;               // return the idx of key
+        int find(const K& key) const;               // return the idx of last found key
         size_t findBlank(const K& key) const;       // return the idx for key to be inserted
         void insert(const K& key, const V& val);
         void insert(const vector<pair<K, V> >& data);
@@ -74,10 +74,14 @@ namespace sy
 
         fmt::print("{:<3} ", home);
         if (table[home] == nullptr)
-            return static_cast<int>(home);
+            return -1;
     	
         int i = static_cast<int>(home);             // d
         int j = 1;                                  // counter
+
+        int last = -1;                              // return the last found key
+        auto last_j = j;
+	    const auto* last_sign = "+";
 
         while(true)
         {
@@ -85,12 +89,19 @@ namespace sy
             if (isValidIndex(i))
             {
                 if (table[i] == nullptr) {
-                    fmt::print("( {0:} + {1:}*{1:} + {2:} ) % {2:} = {3:} ", home, j, table.size(), i);
-                    return -1;
+                    if (last == -1) {
+                        fmt::print("( {0:} + {1:}*{1:} + {2:} ) % {2:} = {3:} ", home, j, table.size(), i);
+                    }
+                    else {
+                        fmt::print("( {0:} {1:} {2:}*{2:} + {3:} ) % {3:} = {4:} ",
+                            home, last_sign, last_j, table.size(), last);
+                    }
+                    return last;
                 }
                 if (table[i]->first == key) {
-                    fmt::print("( {0:} + {1:}*{1:} + {2:} ) % {2:} = {3:} ", home, j, table.size(), i);
-                    return i;
+                    last = i;
+                    last_j = j;
+                    last_sign = "+";
                 }
             }
         	
@@ -98,12 +109,19 @@ namespace sy
             if (isValidIndex(i))
             {
                 if (table[i] == nullptr) {
-                    fmt::print("( {0:} - {1:}*{1:} + {2:} ) % {2:} = {3:} ", home, j, table.size(), i);
-                    return -1;
+                    if (last == -1) {
+                        fmt::print("( {0:} - {1:}*{1:} + {2:} ) % {2:} = {3:} ", home, j, table.size(), i);
+                    }
+                    else {
+                        fmt::print("( {0:} {1:} {2:}*{2:} + {3:} ) % {3:} = {4:} ",
+                            home, last_sign, last_j, table.size(), last);
+                    }
+                    return last;
                 }
                 if (table[i]->first == key) {
-                    fmt::print("( {0:} - {1:}*{1:} + {2:} ) % {2:} = {3:} ", home, j, table.size(), i);
-                    return i;
+                    last = i;
+                    last_j = j;
+                    last_sign = "-";
                 }
             }
             j++;
@@ -127,7 +145,6 @@ namespace sy
             i = static_cast<int>((home + static_cast<unsigned long long>(j) * j + table.size()) % table.size());
             if (isValidIndex(i))
             {
-                
                 if (table[i] == nullptr) {
                     fmt::print("( {0:} + {1:}*{1:} + {2:} ) % {2:} = {3:} ", home, j, table.size(), i);
                     return i;
@@ -156,8 +173,8 @@ namespace sy
 
         fmt::print("insert key {}:\t", key);
         size_t idx = findBlank(key);
-        fmt::print("\n");
         table[idx] = make_shared<pair<K, V> >(key, val);
+        fmt::print("\t{}\n", *(table[idx]));
     }
 
     template<class K, class V>
@@ -206,9 +223,14 @@ namespace sy
     {
         fmt::print("delete key {}:\t", key);
         size_t idx = find(key);
-        fmt::print("{}\n", static_cast<int>(idx) == -1 ? "not exists" : "successful");
-        table[idx] = nullptr;
-        elem_n--;
+        if (static_cast<int>(idx) != -1) {
+            fmt::print("\tdelete {} successful\n", *(table[idx]));
+            elem_n--;
+            table[idx] = nullptr;
+        }
+        else {
+            fmt::print("\tnot exists\n");
+        }
     }
 
     template<class K, class V>

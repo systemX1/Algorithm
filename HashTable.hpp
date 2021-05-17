@@ -135,6 +135,7 @@ namespace sy
     inline void sy::HashTable<E>::printTable() const
     {
         deque<E> deq;
+        printExtraInfo();
     	for (size_t i = 0; i < table.size(); i++)
     	{
             if (i == 0)

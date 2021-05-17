@@ -187,9 +187,9 @@ void MainWindow::test1()
 	testText(1);
 
 	hashmap.reset();
-	for (int i = 0; i <= 50; i++)
+	for (int i = 1; i <= 50; i++)
 	{
-		hashmap.insert(5, i + 1);
+		hashmap.insert(5, i);
 	}
 	hashmap.printTable();
 }
@@ -199,9 +199,15 @@ void MainWindow::test2()
 	testText(2);
 
 	hashmap.reset();
-	for (int i = 0; i <= 10; i++)
+	for (int i = 1; i <= 10; i++)
 	{
-		hashmap.insert(5, i + 1);
+		hashmap.insert(5, i);
+	}
+	hashmap.printTable();
+
+	for (int i = 1; i <= 10; i++)
+	{
+		hashmap.deleteElem(5);
 	}
 
 	hashmap.printTable();
