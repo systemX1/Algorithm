@@ -77,5 +77,19 @@ struct fmt::formatter<pair<K, V> > : formatter<string_view> {
     }
 };
 
+template <typename E>
+struct fmt::formatter<vector<E> > : formatter<string_view> {
+    // parse is inherited from formatter<string_view>.
+    template <typename FormatContext>
+    auto format(const vector<E>& vec, FormatContext& ctx) {
+        basic_string<char> s;
+        for (const auto& i : vec) {
+            s += fmt::format("{:<3} ", i);
+        }
+        s += fmt::format("\n");
+        return formatter<string_view>::format(s, ctx);
+    }
+};
+
 #endif
 

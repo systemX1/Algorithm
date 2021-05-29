@@ -14,6 +14,9 @@ using std::regex_match;
 #include <map>
 using std::map;
 
+#include <stack>
+using std::stack;
+
 #include <utility>
 using std::pair;
 
@@ -24,14 +27,20 @@ using std::cout; using std::endl;
 using std::function;
 using std::bind;
 
+#include <chrono>
+
+
 #include <windows.h>
 
 #include "fmt/core.h"
 #include "fmt/color.h"
+#include <fmt/locale.h>
 
 #include "HashMap.hpp"
 #include "HashTable.hpp"
 #include "formatter.hpp"
+#include "timeCounter.hpp"
+#include "random.hpp"
 
 class MainWindow
 {
@@ -58,6 +67,9 @@ private:
 	void deleteHashTable();
 	void printHelp() const;
 	void resetAll();
+
+	void insertSort();
+	void quickSort();
 
 	void testText(int test_num) const;
 	void test1();

@@ -7,7 +7,7 @@ add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 # Add source to this project's executable.
-add_executable (Algorithm  "Main.cpp" "MainWindow.h" "MainWindow.cpp" "HashTable.hpp" "Hash.h" "HashMap.hpp" "formatter.hpp")
+add_executable (Algorithm  "Main.cpp" "MainWindow.h" "MainWindow.cpp" "HashTable.hpp" "Hash.h" "HashMap.hpp" "formatter.hpp" "timeCounter.hpp" "random.hpp")
 
 #fmt pkg
 find_package(fmt CONFIG REQUIRED)

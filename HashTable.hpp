@@ -177,7 +177,7 @@ namespace sy
         divisor = divisor_;
         for (auto& i : table)
             i = nullptr;
-        vector<shared_ptr<HashTableNode<E> > > tmp(divisor_);
+        vector<shared_ptr<HashTableNode<E> > > tmp(get_odd_next(divisor_));
         tmp.swap(table);
         elem_n = 0;
     }

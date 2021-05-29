@@ -48,6 +48,8 @@ void MainWindow::init()
 			{ string("t10"), [this] { test10(); } },
 			{ string("t11"), [this] { test11(); } },
 			{ string("t12"), [this] { test12(); } },
+			{ string("s1"), [this] { insertSort(); } },
+			{ string("s2"), [this] { quickSort(); } },
 		};
 		
 		cin >> input;
@@ -393,7 +395,34 @@ void MainWindow::test11()
 {
 	testText(11);
 
+	vector<int> va = { 1,3,5,7 };
+	vector<int> vb = { 0,1,3,3,7 };
+	vector<int> vc = { -1,1,3,5,7 };
+	vector<int> vd = { 0,2,2,4,5 };
 	
+	auto f = [](vector<int>& a, vector<int>& b, vector<int>& c) -> void {
+		if (a.empty() || b.empty() || c.empty()) {
+			fmt::print("Invalid data\n");
+			return;
+		}
+
+		size_t i = 0, j = 0, k = 0;
+		int* ret = nullptr;
+		while (i < a.size() && j < b.size() && k < c.size()) {
+			if (a[i] < b[j]) i++;
+			else if (b[j] < c[k]) j++;
+			else if (c[k] < a[i]) k++;
+			else {
+				ret = &a[i];
+				break;
+			}
+		}
+		fmt::print("Min common elem: {}\n", ret == nullptr ? "Not found" : std::to_string(*ret));
+	};
+
+	f(va, vb, vc);
+	f(va, vc, vd);
+	f(vb, vc, vd);
 }
 
 void MainWindow::test12()
@@ -440,12 +469,278 @@ void MainWindow::resetAll()
 	hashtable.reset(in);
 	
 	fmt::print("\tResetting...\n\n");
-	Sleep(800);
+	Sleep(600);
 	system("cls");
 	fmt::print(
 		"┌{0:─^{2}}┐\n"
 		"│{1: ^{2}}│\n"
 		"└{0:─^{2}}┘\n", "", "HashTable", 40);
+}
+
+void MainWindow::insertSort()
+{
+	printLine(string("insertSort"));
+
+	auto t_begin = std::chrono::system_clock::now();
+	
+
+	vector<int> data_v = { 0, 4, 6, 8, -4, 2, 0, 4, 3, 10, 24 };
+
+	for(const auto& i : data_v) {
+		fmt::print("{:<3} ", i);
+	}
+	fmt::print("\n");
+	
+	auto insertSort = [](vector<int>& data) -> void {
+		size_t i = 0, j = 0, n = data.size();
+		for (i = 2; i < n; i++) {
+			if(data[i] < data[i-1]) {
+				data[0] = data[i];
+				for(j = i - 1; data[0] < data[j]; j--) {
+					data[j + 1] = data[j];
+				}
+				data[j + 1] = data[0];
+			}
+
+			for (const auto& ie : data) {
+				fmt::print("{:<3} ", ie);
+			}
+			fmt::print("\n");
+		}
+	};
+
+	insertSort(data_v);
+
+
+	auto t_end = std::chrono::system_clock::now();
+	std::chrono::duration<double, std::milli> fp_ms = t_end - t_begin;
+	fmt::print("duration:{:>10}\n", fp_ms.count());
+}
+
+
+void MainWindow::quickSort()
+{
+	printLine(string("quickSort"));
+
+	sy::random<int> dice;
+	auto data_v = dice(20, 0, 50);
+	auto data_v_plus = data_v;
+	
+	auto partition = [](vector<int>& data, int low, int high) -> int {
+		int pivot = data[low];
+		while (low < high) {
+			while (low < high && data[high] >= pivot) {
+				--high;
+			}
+			data[low] = data[high];
+			while (low < high && data[low] <= pivot) {
+				++low;
+			}
+			data[high] = data[low];
+		}
+		data[low] = pivot;
+		return low;
+	};
+	
+	function<void(vector<int>&, int, int)> quickSort = [&](vector<int>& data, int low, int high) {
+		if(low < high) {
+			int pivotPos = partition(data, low, high);
+			quickSort(data, low, pivotPos - 1);
+			quickSort(data, pivotPos + 1, high);
+		}
+	};
+
+	auto swap = [&](int& a, int& b) {
+		auto tmp = a;
+		a = b;
+		b = tmp;
+	};
+
+	auto getPivot = [](int first, int mid, int last) -> int {
+		if ((first >= mid && first <= last) || (first <= mid && first >= last))
+			return first;
+		else if ((mid >= first && mid <= last) || (mid <= first && mid >= last))
+			return mid;
+		else
+			return last;
+	};
+
+	auto partition_plus = [&](vector<int>& data, int low, int high, bool& isOrdered) -> int {
+		int pivotPos = getPivot(low, (low + high) / 2, high);
+		swap(data[pivotPos], data[low]);
+		int pivot = data[low];
+		
+		while (low < high) {
+			while (low < high && data[high] >= pivot) {
+				isOrdered = false;
+				--high;
+			}
+			data[low] = data[high];
+			while (low < high && data[low] <= pivot) {
+				isOrdered = false;
+				++low;
+			}
+			data[high] = data[low];
+		}
+		data[low] = pivot;
+		
+		return low;
+	};
+
+	auto tinySort = [&](vector<int>& data, int left, int right) {
+		
+		if (right - left == 1) {
+			if (data[left] > data[right]) {
+				swap(data[left], data[right]);
+			}
+		}
+		else {
+			if (data[left] > data[left + 1])
+				swap(data[left], data[left + 1]);
+			if (data[left + 1] > data[right])
+				swap(data[left + 1], data[right]);
+			if (data[left] > data[left + 1])
+				swap(data[left], data[left + 1]);
+		}
+	};
+	
+	auto quickSort_plus = [&](vector<int>& data) {
+		bool isOrdered = false;             ///标记，用来判断是否已经排好序(未发生过交换)
+		int low = 0;
+		int high = static_cast<int>(data_v.size()) - 1;
+		stack<int> st;
+		if (low < high) {
+			//如果序列小于等于3个元素
+			if (high - low < 3) {
+				tinySort(data, low, high);
+				return;
+			}
+
+			int boundary = partition_plus(data, low, high, isOrdered);   //划分后的中枢所在位置
+
+			if (isOrdered == true)
+				return;
+
+			//如果左分区比右分区短
+			if (boundary - low < high - boundary) {
+				//判断右分区是否存在
+				if (boundary + 1 < high) {
+					st.push(boundary + 1);
+					st.push(high);
+				}
+				//判断左分区是否存在
+				if (boundary - 1 > low) {
+					//将左分区端点后入栈以便优先排序
+					st.push(low);
+					st.push(boundary - 1);
+				}
+			}
+			//如果右分区比左分区短
+			else {
+				//判断左分区是否存在
+				if (boundary - 1 > low) {
+					st.push(low);
+					st.push(boundary - 1);
+				}
+				//判断右分区是否存在
+				if (boundary + 1 < high) {
+					///将右分区端点后入栈以便优先排序
+					st.push(boundary + 1);
+					st.push(high);
+				}
+			}
+
+			//栈非空且未排好序
+			while (!st.empty()) {
+				//得到某分区的左右边界
+				int r = st.top(); st.pop();
+				int l = st.top(); st.pop();
+
+				boundary = partition_plus(data, l, r, isOrdered);  //boundary为枢轴元素所在位置
+				if (isOrdered == true)        //如果已经有序，结束排序。
+					return;
+
+				//如果序列小于等于3个元素
+				if (high - low < 3) {
+					tinySort(data, low, high);
+					return;
+				}
+
+				//如果左分区比右分区短
+				if (boundary - l < r - boundary) {
+					//判断右分区是否存在
+					if (boundary + 1 < r) {
+						st.push(boundary + 1);
+						st.push(r);
+					}
+					//判断左分区是否存在
+					if (boundary - 1 > l) {
+						///将左分区端点后入栈以便优先排序
+						st.push(l);
+						st.push(boundary - 1);
+					}
+				}
+				//如果右分区比左分区短
+				else {
+					//判断左分区是否存在
+					if (boundary - 1 > l)  {
+						st.push(l);
+						st.push(boundary - 1);
+					}
+					//判断右分区是否存在
+					if (boundary + 1 < r) {
+						///将右分区端点后入栈以便优先排序
+						st.push(boundary + 1);
+						st.push(r);
+					}
+				}
+			}
+		}
+	};
+
+
+
+	fmt::print("Original data:\t\t{}", data_v);
+
+	auto t1 = std::chrono::system_clock::now();
+	quickSort(data_v, 0, static_cast<int>(data_v.size()) - 1);
+	auto t2 = std::chrono::system_clock::now();
+	std::chrono::duration<double, std::nano> fp_ns = t2 - t1;
+	
+	fmt::print("After QuickSort:\t{}", data_v);
+	fmt::print("Elapsed time: {:>10}ms\n", fp_ns.count());
+
+	auto t1_plus = std::chrono::system_clock::now();
+	quickSort_plus(data_v_plus);
+	auto t2_plus = std::chrono::system_clock::now();
+	std::chrono::duration<double, std::nano> fp_ns_plus = t2_plus - t1_plus;
+	fmt::print("After QuickSort Plus:\t{}", data_v);
+	fmt::print("Elapsed time: {:>10}ms\n", fp_ns_plus.count());
+
+	
+	for (int i = 100; i < 100000000; i *= 10) {
+		auto t_begin = std::chrono::system_clock::now();
+		auto data_mega_v = dice(i, 0, 9999);
+		auto data_mega_v_plus = data_mega_v;
+		auto t_end = std::chrono::system_clock::now();
+		std::chrono::duration<double> el_s = t_end - t_begin;
+		auto s = fmt::format(std::locale("en_US.UTF-8"), "{:L}", i);
+		fmt::print("After generate {} random numbers, ", s);
+		fmt::print("Elapsed time:{:>10}s\n", el_s.count());
+
+		auto t1_mega = std::chrono::system_clock::now();
+		quickSort(data_mega_v, 0, static_cast<int>(data_v.size()) - 1);
+		auto t2_mega = std::chrono::system_clock::now();
+		std::chrono::duration<double> fp_mega_s = t2_mega - t1_mega;
+
+		fmt::print("{} elems after QuickSort, Elapsed time:{:>15}s\n", s, fp_mega_s.count());
+
+		auto t1_mega_plus = std::chrono::system_clock::now();
+		quickSort_plus(data_mega_v_plus);
+		auto t2_mega_plus = std::chrono::system_clock::now();
+		std::chrono::duration<double> fp_mega_s_plus = t2_mega_plus - t1_mega_plus;
+		fmt::print("{} elems after QuickSort Plus, Elapsed time:\t{:>10}s\n\n", s, fp_mega_s_plus.count());
+	}
 }
 
 void MainWindow::printLine(const string& s)
